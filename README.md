@@ -7,6 +7,7 @@ A secure REST API for task management built with FastAPI, featuring JWT authenti
 - **User Authentication**: JWT-based authentication with secure password hashing
 - **Task Management**: Full CRUD operations for tasks
 - **User Isolation**: Users can only access their own tasks
+- **Error Logging**: Custom middleware for logging errors and request monitoring
 - **Secure**: Password hashing with bcrypt, environment variable configuration
 - **Database**: PostgreSQL integration with SQLAlchemy ORM
 - **Testing**: Comprehensive test suite with pytest and separate test database
@@ -20,6 +21,7 @@ A secure REST API for task management built with FastAPI, featuring JWT authenti
 - **Password Hashing**: bcrypt via passlib
 - **Testing**: pytest, TestClient
 - **Environment Management**: python-dotenv
+- **Logging**: Custom middleware for error tracking and performance monitoring
 
 ## Project Structure
 
@@ -110,6 +112,29 @@ The test suite covers:
 - Error handling for non-existent resources
 - Invalid authentication attempts
 
+### Logging & Monitoring
+
+The application includes comprehensive request logging and error tracking:
+
+Error Logging Features
+- Automatic Error Logging: All non-200 HTTP responses are logged to log.txt
+- Performance Monitoring: Request duration tracking for all endpoints
+- Detailed Log Format: Timestamp, client IP, HTTP method, path, status code, and response time
+- Error Categorization: Clear classification of error types (BAD REQUEST, UNAUTHORIZED, NOT FOUND, etc.)
+
+Log File Format(example):
+(2024-12-28 15:30:45) 127.0.0.1 - POST /tasks/999 404 (NOT FOUND) (0.0234s)
+(2024-12-28 15:31:12) 192.168.1.100 - GET /tasks 401 (UNAUTHORIZED) (0.0156s)
+
+Monitoring Benefits:
+
+- Debugging: Easily identify failed requests and their causes
+- Performance Analysis: Track slow endpoints and optimize accordingly
+- Security Monitoring: Monitor unauthorized access attempts
+- Usage Analytics: Understand API usage patterns
+
+Note: The log.txt file is automatically created when the first error occurs. Consider adding it to your .gitignore for production deployments.
+
 ## Database Schema
 
 ### Users Table
@@ -130,6 +155,7 @@ The test suite covers:
 - **JWT Tokens**: Secure token-based authentication with 30-minute expiration
 - **User Isolation**: Users can only access their own tasks
 - **Environment Variables**: Sensitive data stored in environment variables
+- **Request Logging**: All errors and performance metrics logged for monitoring
 
 ## License
 

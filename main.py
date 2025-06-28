@@ -1,7 +1,7 @@
 # Import neccessary libraries
 from dotenv import load_dotenv
 import os
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from typing import List, Annotated
@@ -11,6 +11,7 @@ from jwt.exceptions import InvalidTokenError
 from sqlalchemy import create_engine, Column, Integer, String, Boolean
 from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from datetime import datetime, timedelta, timezone
+import time
 
 
 ALGORITHM = "HS256"
@@ -54,7 +55,7 @@ class User(Base):
     username = Column(String, unique=True)
     hashed_password = Column(String)
 
-class createUser(BaseModel):
+class CreateUser(BaseModel):
     username: str
     password: str
 
@@ -66,7 +67,7 @@ class taskItem(BaseModel):
     class ConfigDict:
         from_attributes = True
 
-class taskDB(Base):
+class TaskDB(Base):
     __tablename__ =  "tasks"
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     title = Column(String)
@@ -133,11 +134,46 @@ def get_current_user(
     
 app = FastAPI()
 
+@app.middleware('http')
+async def log_errors_to_file(request: Request, call_next_function):
+    start_time = time.perf_counter()
+    response = await call_next_function(request)
+    duration = time.perf_counter() - start_time
+
+    status = response.status_code
+
+    if status == 200:
+        return response
+    elif status == 400:
+        log_type = "BAD REQUEST"
+    elif status == 401:
+        log_type = "UNAUTHORIZED"
+    elif status == 403:
+        log_type = "FORBIDDEN"
+    elif status == 404:
+        log_type = "NOT FOUND"
+    elif status >= 500:
+        log_type = "SERVER ERROR"
+    else:
+        log_type = "OTHER ERROR"
+
+    log_entry = (
+        f"({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})"
+        f"{request.client.host} - {request.method} {request.url.path}"
+        f"{status} ({log_type}) ({duration:.4f}s)\n"
+    )
+
+    try:
+        with open('log.txt', 'a') as logfile:
+            logfile.write(log_entry)
+    except Exception as e:
+        print(f"Logging error: {e}")
+
 #User registration
 
 @app.post('/register')
 def register_user(
-    user: createUser,
+    user: CreateUser,
     db: Annotated[Session, Depends(get_db)]
 ):
     existing_user = db.query(User).filter(User.username == user.username).first()
@@ -175,7 +211,7 @@ def create_task(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)]
 ):
-    db_task = taskDB(title = task.title, description = task.description, completed = task.completed, owner = current_user.username)
+    db_task = TaskDB(title = task.title, description = task.description, completed = task.completed, owner = current_user.username)
     db.add(db_task)
     db.commit()
     db.refresh(db_task)
@@ -186,7 +222,7 @@ def get_all_task(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)]
 ):
-    return db.query(taskDB).filter(taskDB.owner == current_user.username).all()
+    return db.query(TaskDB).filter(TaskDB.owner == current_user.username).all()
 
 @app.get('/tasks/{task_id}', response_model= taskItem)
 def get_task(
@@ -194,11 +230,11 @@ def get_task(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)]
 ):
-    db_task = db.query(taskDB).filter(taskDB.id == task_id, taskDB.owner == current_user.username).first()
+    db_task = db.query(TaskDB).filter(TaskDB.id == task_id, TaskDB.owner == current_user.username).first()
     if not db_task:
         raise HTTPException(
             status_code= 404,
-            detail= "Task with this ID: {task_id} cannot be found!"
+            detail= f"Task with this ID: {task_id} cannot be found!"
         )
     return db_task
 
@@ -209,11 +245,11 @@ def update_task(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)]
 ):
-    db_task = db.query(taskDB).filter(taskDB.id == task_id, taskDB.owner == current_user.username).first()
+    db_task = db.query(TaskDB).filter(TaskDB.id == task_id, TaskDB.owner == current_user.username).first()
     if not db_task:
         raise HTTPException(
             status_code= 404,
-            detail= "Task with this ID: {task_id} cannot be found!"
+            detail= f"Task with this ID: {task_id} cannot be found!"
         )
     db_task.title = updated_task.title
     db_task.description = updated_task.description
@@ -229,11 +265,11 @@ def delete_task(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)]
 ):
-    db_task = db.query(taskDB).filter(taskDB.id == task_id, taskDB.owner == current_user.username).first()
+    db_task = db.query(TaskDB).filter(TaskDB.id == task_id, TaskDB.owner == current_user.username).first()
     if not db_task:
         raise HTTPException(
             status_code= 404,
-            detail= "Task with this ID: {task_id} cannot be found!"
+            detail= f"Task with this ID: {task_id} cannot be found!"
         )
     db.delete(db_task)
     db.commit()
