@@ -3,7 +3,7 @@ name: CI Run test
 on:
   push:
     branch: [main]
-  pull-request:
+  pull_request:
 
 jobs:
   runs-on: ubuntu-latest
