@@ -1,6 +1,5 @@
 import pytest
 from fastapi.testclient import TestClient
-from typing import List, Annotated
 from main import Base, get_db, app
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
@@ -85,7 +84,7 @@ def test_update_nonexistent_task(client):
       headers = register_and_login(client)
       client.post('/tasks/', json = {"title": "task1", "description": "This is the first task", "completed": False}, headers = headers)
 
-      response = client.put('/tasks/2',headers=headers)
+      response = client.put('/tasks/2',json=  {"title": "Updated task", "description": "Updated description", "completed": True},headers=headers)
       assert response.status_code == 404
 
 

@@ -169,6 +169,8 @@ async def log_errors_to_file(request: Request, call_next_function):
     except Exception as e:
         print(f"Logging error: {e}")
 
+    return response
+
 #User registration
 
 @app.post('/register')
