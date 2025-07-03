@@ -1,6 +1,6 @@
 # Task Manager API
 
-A secure REST API for task management built with FastAPI, featuring JWT authentication, PostgreSQL database integration, and comprehensive testing.
+A secure REST API for task management built with FastAPI, featuring JWT authentication, PostgreSQL database integration, comprehensive testing, and automated CI/CD pipeline.
 
 ## Features
 
@@ -11,6 +11,7 @@ A secure REST API for task management built with FastAPI, featuring JWT authenti
 - **Secure**: Password hashing with bcrypt, environment variable configuration
 - **Database**: PostgreSQL integration with SQLAlchemy ORM
 - **Testing**: Comprehensive test suite with pytest and separate test database
+- **CI/CD**: Automated testing with GitHub Actions
 
 ## Tech Stack
 
@@ -22,18 +23,18 @@ A secure REST API for task management built with FastAPI, featuring JWT authenti
 - **Testing**: pytest, TestClient
 - **Environment Management**: python-dotenv
 - **Logging**: Custom middleware for error tracking and performance monitoring
+- **CI/CD**: GitHub Actions for automated testing
 
 ## Project Structure
 
 task-manager/
 ├── main.py          # Main application file with API endpoints
-
 ├── test.py          # Comprehensive test suite
-
 ├── requirements.txt # Python dependencies
-
 ├── .env             # Environment variables (not included in repo)
-
+├── .github/
+│   └── workflows/
+│       └── ci.yml   # GitHub Actions CI pipeline
 └── README.md        # This file
 
 ## Installation
@@ -97,11 +98,40 @@ Once the server is running, visit:
 
 ## Testing
 
-Run the test suite:
+### Local Testing
+
+Run the test suite locally:
 
 ```bash
 pytest test.py -v
 ```
+
+### Continuous Integration
+
+This project uses GitHub Actions for automated testing. The CI pipeline:
+
+- **Triggers**: Runs on pushes to main branch and all pull requests
+- **Environment**: Ubuntu latest with Python 3.11
+- **Database**: PostgreSQL 13 service container for testing
+- **Tests**: Automatically runs the full pytest suite
+
+#### CI Pipeline Features
+
+- **Automated Testing**: Every push and pull request triggers the test suite
+- **PostgreSQL Integration**: Uses PostgreSQL service container for realistic testing
+- **Environment Isolation**: Tests run in clean, isolated environment
+- **Dependency Management**: Automatically installs all required dependencies
+- **Health Checks**: PostgreSQL service includes health checks to ensure database readiness
+
+#### CI Configuration
+
+The pipeline requires the following GitHub repository secrets:
+- `TEST_DB_USER`: PostgreSQL username for testing
+- `TEST_DB_PASSWORD`: PostgreSQL password for testing  
+- `TEST_DB_NAME`: Test database name
+- `TEST_DB_HOST`: Database host (typically localhost in CI)
+- `TEST_DB_PORT`: Database port (typically 5432)
+- `SECRET_KEY`: JWT secret key for testing
 
 ### Test Coverage
 
@@ -157,6 +187,7 @@ Note: The log.txt file is automatically created when the first error occurs. Con
 - **Environment Variables**: Sensitive data stored in environment variables
 - **Request Logging**: All errors and performance metrics logged for monitoring
 
+
 ## License
 
 This project is open source and available under the [MIT License](LICENSE).
@@ -168,12 +199,11 @@ This project is open source and available under the [MIT License](LICENSE).
 - **Database Connection Error**: Ensure PostgreSQL is running and credentials in `.env` are correct
 - **JWT Token Invalid**: Check if token has expired (30-minute lifetime)
 - **Import Errors**: Make sure all dependencies are installed
+- **CI Failures**: Check that all required repository secrets are configured correctly
 
 ### Environment Setup
 
 Make sure your `.env` file is properly configured and not committed to version control. Add `.env` to your `.gitignore` file.
 
+For CI/CD, ensure all required secrets are added to your GitHub repository settings.
 ## Future Enhancements
-
-- Task due dates and reminders
-- Email notifications
