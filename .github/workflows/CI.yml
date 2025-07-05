@@ -36,6 +36,15 @@ jobs:
           pip install -r requirements.txt
           pip install pytest
 
+      - name: Wait for Neon DB to wake up
+        run: |
+          echo "Waiting for Neon DB..."
+          for i in {1..10}; do
+            pg_isready -d "$NEON_TEST_DB_URL" && break
+            echo "Still waiting..."
+            sleep 5
+          done
+
       - name: Run tests
         run: |
           pytest test.py -v
