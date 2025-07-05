@@ -21,8 +21,10 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 
 load_dotenv()
 
+SECRET_KEY = os.getenv("SECRET_KEY")
+
 # Database connection
-DB_URL = os.getenv("MAIN_DB_URL")
+DB_URL = os.getenv("NEON_MAIN_DB_URL")
 engine = create_engine(DB_URL)
 localSession = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()

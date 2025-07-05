@@ -9,9 +9,8 @@ import os
 
 load_dotenv()
 
-
 # Test DB connection
-TEST_DB_URL = os.getenv("TEST_DB_URL")
+TEST_DB_URL = os.getenv("NEON_TEST_DB_URL")
 test_engine = create_engine(TEST_DB_URL)
 testingLocalSession = sessionmaker(autocommit=False, autoflush=False, bind= test_engine)
 
