@@ -12,7 +12,7 @@ jobs:
     
     env:
       NEON_TEST_DB_URL: ${{ secrets.NEON_TEST_DB_URL }}
-      SECRET_KEY: ${{ secrets.SECRET_KEY }}git commit 
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
     steps:
       - name: Checkout code
@@ -33,7 +33,7 @@ jobs:
         run: |
           echo "Waiting for Neon DB..."
           for i in {1..10}; do
-            pg_isready -d "$NEON_TEST_DB_URL" && break
+            pg_isready -h "${{ secrets.NEON_HOST }}" -p "${{ secrets.NEON_PORT }}" && break
             echo "Still waiting..."
             sleep 5
           done
