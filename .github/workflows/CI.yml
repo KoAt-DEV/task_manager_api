@@ -12,7 +12,7 @@ jobs:
     
     env:
       NEON_TEST_DB_URL: ${{ secrets.NEON_TEST_DB_URL }}
-      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}git commit 
 
     steps:
       - name: Checkout code
