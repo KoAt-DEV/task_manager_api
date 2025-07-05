@@ -9,17 +9,9 @@ import os
 
 load_dotenv()
 
-DB_USERNAME = os.getenv("DB_USERNAME")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_NAME = os.getenv("DB_NAME")
-TEST_DB_NAME = os.getenv("TEST_DB_NAME")
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
-
-
-TEST_DB_URL = f"postgresql+psycopg2://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{TEST_DB_NAME}"
 
 # Test DB connection
+TEST_DB_URL = os.getenv("TEST_DB_URL")
 test_engine = create_engine(TEST_DB_URL)
 testingLocalSession = sessionmaker(autocommit=False, autoflush=False, bind= test_engine)
 
@@ -95,3 +87,5 @@ def test_delete_task(client):
         response = client.delete('/tasks/1',headers=headers)
         assert response.status_code == 200
         assert "deleted" in response.json()["message"].lower()
+
+        

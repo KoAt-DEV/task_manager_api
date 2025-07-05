@@ -21,15 +21,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 
 load_dotenv()
 
-DB_USERNAME = os.getenv("DB_USERNAME")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
-DB_NAME = os.getenv("DB_NAME")
-SECRET_KEY = os.getenv("SECRET_KEY")
-
 # Database connection
-DB_URL = f'postgresql+psycopg2://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
+DB_URL = os.getenv("MAIN_DB_URL")
 engine = create_engine(DB_URL)
 localSession = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
