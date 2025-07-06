@@ -12,6 +12,7 @@ jobs:
     
     env:
       NEON_TEST_DB_URL: ${{ secrets.NEON_TEST_DB_URL }}
+      NEON_MAIN_DB_URL: ${{ secrets.NEON_TEST_DB_URL }}
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
     steps:
@@ -29,14 +30,21 @@ jobs:
           pip install -r requirements.txt
           pip install pytest
 
-      - name: Wait for Neon DB to wake up
+      - name: Test database connection
         run: |
-          echo "Waiting for Neon DB..."
-          for i in {1..20}; do
-            pg_isready -h "${{ secrets.NEON_HOST }}" -p "${{ secrets.NEON_PORT }}" && break
-            echo "Still waiting..."
-            sleep 10
-          done
+          echo "Testing database connection..."
+          python -c "
+          import os
+          import psycopg
+          try:
+              conn = psycopg.connect(os.getenv('NEON_TEST_DB_URL'))
+              print('✅ Database connection successful')
+              conn.close()
+          except Exception as e:
+              print(f'❌ Database connection failed: {e}')
+              exit(1)
+          "
+
 
       - name: Run tests
         run: |
